@@ -2,237 +2,281 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>DTU - Panel Informacyjny</title>
-
+<title>DTU - Tactical Information Panel</title>
 <style>
-    body {
-        margin: 0;
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: linear-gradient(145deg, #0a0e14 0%, #162033 100%);
-        color: #e6e6e6;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        padding: 20px;
-    }
+/* ===== GLOBAL ===== */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(145deg, #0a0e14 0%, #162033 100%);
+    color: #d8e6ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+    transition: background 0.5s, color 0.5s;
+}
 
-    .container {
-        width: 100%;
-        max-width: 600px;
-        background: rgba(20, 28, 40, 0.85);
-        padding: 30px;
-        border-radius: 14px;
-        box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        position: relative;
-    }
+.container-wrapper {
+    position: relative;
+}
 
-    .logo {
-        display: block;
-        width: 120px;
-        margin: -10px auto 10px auto;
-        opacity: 0.9;
-    }
+.led-frame {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+    border-radius: 16px;
+    pointer-events: none;
+    box-shadow: 0 0 15px rgba(0,102,255,0.4),
+                0 0 30px rgba(0,102,255,0.2),
+                0 0 45px rgba(0,102,255,0.1);
+    transition: 0.3s;
+}
 
-    h2, h3 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-weight: 600;
-        letter-spacing: 1px;
-    }
+/* Priorytety LED */
+.led-frame.low { box-shadow: 0 0 15px rgba(0,102,255,0.8),0 0 150px rgba(0,102,255,0.5),0 0 45px rgba(0,102,255,0.3);}
+.led-frame.medium { box-shadow: 0 0 15px rgba(255,204,0,0.8),0 0 150px rgba(255,204,0,0.5),0 0 45px rgba(255,204,0,0.3);}
+.led-frame.high { box-shadow: 0 0 15px rgba(255,102,0,0.8),0 0 150px rgba(255,102,0,0.5),0 0 45px rgba(255,102,0,0.3);}
+.led-frame.critical { box-shadow: 0 0 15px rgba(255,0,0,0.8),0 0 150px rgba(255,0,0,0.5),0 0 45px rgba(255,0,0,0.3);}
 
-    p {
-        text-align: center;
-        opacity: 0.9;
-        line-height: 1.5;
-    }
+/* ===== CONTAINER ===== */
+.container {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(7, 22, 44, 0.85);
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    transition: all 0.5s;
+}
 
-    label {
-        margin-top: 10px;
-        font-size: 15px;
-        display: block;
-        opacity: 0.9;
-    }
+/* ===== RESZTA STYLÓW ===== */
+.banner {
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    border-bottom: 2px solid rgba(0, 102, 255, 0.4);
+    margin-bottom: 20px;
+}
+.banner h1 { font-size: 22px; letter-spacing: 2px; margin: 0; color: #61a0ff; text-transform: uppercase; }
+.logo { display: block; width: 110px; margin: 10px auto 18px auto; opacity: 0.95; filter: drop-shadow(0 0 6px rgba(0, 102, 255, 0.35)); }
+h2 { text-align: center; font-size: 19px; margin-bottom: 20px; color: #bcd6ff; text-shadow: 0 0 4px rgba(0,102,255,0.3); }
+p { text-align: center; opacity: 0.85; line-height: 1.5; }
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 8px;
+    background: rgba(0, 20, 40, 0.5);
+    border: 1px solid rgba(0, 102, 255, 0.25);
+    color: #ffffff;
+    font-size: 15px;
+    transition: 0.2s;
+}
+input:focus, textarea:focus, select:focus {
+    background: rgba(0, 30, 60, 0.7);
+    border-color: #1e90ff;
+    box-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+    outline: none;
+}
+select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #0044aa 0%, #006cff 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+    letter-spacing: 1px;
+    transition: 0.2s;
+    box-shadow: 0 0 10px rgba(0, 102, 255, 0.3);
+}
+button:hover {
+    background: linear-gradient(90deg, #0055cc 0%, #1e90ff 100%);
+    box-shadow: 0 0 12px rgba(60, 130, 255, 0.55);
+}
+#status, #inq_status { text-align: center; margin-top: 15px; opacity: 0.9; font-weight: 500; }
+.section { display: none; animation: fadeIn 0.4s; }
+.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.accordion {
+    background: rgba(0,20,40,0.5);
+    color: #d8e6ff;
+    cursor: pointer;
+    padding: 12px;
+    width: 100%;
+    border: 1px solid rgba(0,102,255,0.25);
+    border-radius: 6px;
+    margin-top: 8px;
+    text-align: left;
+    outline: none;
+    transition: 0.2s;
+}
+.accordion:hover { background: rgba(0,30,60,0.7); }
+.accordion:after {
+    content: '\002B';
+    color: #61a0ff;
+    float: right;
+    font-weight: bold;
+}
+.accordion.active:after { content: "\2212"; }
+.panel {
+    padding: 0 12px;
+    background-color: rgba(0,15,30,0.4);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    border-left: 2px solid #61a0ff;
+    margin-bottom: 6px;
+}
 
-    input, select, textarea {
-        width: 100%;
-        padding: 12px;
-        margin-top: 6px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: white;
-        font-size: 15px;
-        transition: 0.2s;
-    }
-
-    input:focus, textarea:focus {
-        border-color: #2d8cff;
-        outline: none;
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    select {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-        font-size: 15px;
-        padding: 12px;
-        margin-top: 6px;
-        border-radius: 8px;
-        background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 16px;
-        cursor: pointer;
-    }
-
-    select:focus {
-        border-color: #2d8cff;
-        outline: none;
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    select option {
-        background: #141a24;
-        color: white;
-    }
-
-    button {
-        width: 100%;
-        padding: 14px;
-        background: #1d4ed8;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        margin-top: 15px;
-        transition: 0.2s;
-    }
-
-    button:hover {
-        background: #153ea8;
-    }
-
-    #status {
-        text-align: center;
-        margin-top: 15px;
-        opacity: 0.9;
-        font-weight: 500;
-    }
-
-    /* Sekcje */
-    .section {
-        display: none;
-    }
-
-    .active {
-        display: block;
-    }
+/* ===== KOLORY PRIORYTETÓW FORMULARZA ===== */
+#report.form-low { border-color: rgba(0,102,255,0.35); }
+#report.form-medium { border-color: rgba(255,204,0,0.6); }
+#report.form-high { border-color: rgba(255,102,0,0.6); }
+#report.form-critical { border-color: rgba(255,0,0,0.5); }
+#report.form-critical button { background: linear-gradient(90deg,#aa0000 0%,#ff2222 100%); }
 
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container-wrapper">
+    <div class="led-frame low"></div>
+    <div class="container">
+        <div class="banner">
+            <h1>DTU - Tactical Unit System</h1>
+        </div>
+        <img src="dtu.png" alt="DTU Logo" class="logo">
 
-    <!-- LOGO -->
-    <img src="dtu.png" alt="DTU Logo" class="logo">
+        <!-- STRONA GŁÓWNA -->
+        <div id="home" class="section active">
+            <h2>Witamy w Panelu Informacyjnym DTU</h2>
+            <p>System przeznaczony do przekazywania raportów oraz zapytań pomiędzy Funkcjonariuszami Policji a jednostką DTU.</p>
+            <button onclick="showSection('report')">📄 Formularz Raportowy</button>
+            <button onclick="showSection('inquiry')">❓ Formularz Zapytaniowy</button>
+            <button onclick="showSection('faq')">📖 FAQ</button>
+        </div>
 
-    <!-- STRONA GŁÓWNA -->
-    <div id="home" class="section active">
-        <h2>Witamy w panelu DTU</h2>
-        <p>Ta strona służy do przekazywania informacji pomiędzy Funkcjonariuszami Policji a jednostką DTU.<br>
-        Wybierz odpowiedni formularz poniżej, aby wysłać raport lub zadać pytanie.</p>
+        <!-- FORMULARZ RAPORTOWY -->
+        <div id="report" class="section">
+            <h2>Formularz Raportowy DTU</h2>
+            <label>Funkcjonariusz</label>
+            <input type="text" id="officer" placeholder="np. J. Miller">
+            <label>Numer telefonu</label>
+            <input type="text" id="phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
+            <label>Priorytet</label>
+            <select id="priority">
+                <option value="Niski">Niski</option>
+                <option value="Średni">Średni</option>
+                <option value="Wysoki">Wysoki</option>
+                <option value="Krytyczny">Krytyczny</option>
+            </select>
+            <label>Treść raportu</label>
+            <textarea id="message" rows="6" placeholder="Opisz sytuację..."></textarea>
+            <button onclick="sendReport()">Wyślij Raport</button>
+            <button onclick="showSection('home')">⏪ Powrót</button>
+            <p id="status"></p>
+        </div>
 
-        <button onclick="showSection('report')">Formularz Raportowy 📄</button>
-        <button onclick="showSection('inquiry')">Formularz Zapytaniowy ❓</button>
+        <!-- FORMULARZ ZAPYTANIOWY -->
+        <div id="inquiry" class="section">
+            <h2>Formularz Zapytaniowy DTU</h2>
+            <label>Funkcjonariusz</label>
+            <input type="text" id="inq_officer" placeholder="np. J. Miller">
+            <label>Numer telefonu</label>
+            <input type="text" id="inq_phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
+            <label>Treść zapytania</label>
+            <textarea id="inq_message" rows="6" placeholder="Opisz zapytanie..."></textarea>
+            <button onclick="sendInquiry()">Wyślij Zapytanie</button>
+            <button onclick="showSection('home')">⏪ Powrót</button>
+            <p id="inq_status"></p>
+        </div>
+
+        <!-- FAQ -->
+        <div id="faq" class="section">
+            <h2>FAQ – Najczęściej Zadawane Pytania</h2>
+            <button class="accordion">Jak wysłać raport do DTU?</button>
+            <div class="panel"><p>Wypełnij formularz raportowy, wybierz priorytet i opisz sytuację, a następnie kliknij "Wyślij Raport".</p></div>
+            <button class="accordion">Jak wysłać zapytanie do DTU?</button>
+            <div class="panel"><p>Wypełnij formularz zapytaniowy, podaj swoje dane i treść pytania, a następnie kliknij "Wyślij Zapytanie".</p></div>
+            <button class="accordion">Czy muszę podawać numer telefonu?</button>
+            <div class="panel"><p>Numer telefonu nie jest obowiązkowy, ale ułatwia kontakt w razie potrzeby dodatkowych informacji.</p></div>
+            <button class="accordion">Co oznaczają priorytety raportów?</button>
+            <div class="panel"><p>Niski – informacyjny, Średni – ważny, Wysoki – pilny, Krytyczny – wymaga natychmiastowej reakcji DTU.</p></div>
+            <button class="accordion">Czy moje dane są bezpieczne?</button>
+            <div class="panel"><p>Tak, informacje przesyłane są bezpośrednio do jednostki DTU poprzez zabezpieczony webhook Discord.</p></div>
+            <button onclick="showSection('home')">⏪ Powrót do strony głównej</button>
+        </div>
     </div>
-
-    <!-- FORMULARZ RAPORTOWY -->
-    <div id="report" class="section">
-        <h2>Formularz Raportowy DTU</h2>
-        <label>Funkcjonariusz</label>
-        <input type="text" id="officer" placeholder="np. J. Miller">
-
-        <label>Numer telefonu kontaktowego</label>
-        <input type="text" id="phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
-
-        <label>Priorytet</label>
-        <select id="priority">
-            <option value="Niski">Niski</option>
-            <option value="Średni">Średni</option>
-            <option value="Wysoki">Wysoki</option>
-            <option value="Krytyczny">Krytyczny</option>
-        </select>
-
-        <label>Treść raportu</label>
-        <textarea id="message" rows="6" placeholder="Opisz sytuację..."></textarea>
-
-        <button onclick="sendReport()">Wyślij raport</button>
-        <button onclick="showSection('home')">Powrót do strony głównej</button>
-
-        <p id="status"></p>
-    </div>
-
-    <!-- FORMULARZ ZAPYTANIOWY -->
-    <div id="inquiry" class="section">
-        <h2>Formularz Zapytaniowy DTU</h2>
-        <label>Funkcjonariusz</label>
-        <input type="text" id="inq_officer" placeholder="np. J. Miller">
-
-        <label>Numer telefonu kontaktowego</label>
-        <input type="text" id="inq_phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
-
-        <label>Treść zapytania</label>
-        <textarea id="inq_message" rows="6" placeholder="Opisz zapytanie..."></textarea>
-
-        <button onclick="sendInquiry()">Wyślij zapytanie</button>
-        <button onclick="showSection('home')">Powrót do strony głównej</button>
-
-        <p id="inq_status"></p>
-    </div>
-
 </div>
 
 <script>
-// Funkcja przełączania sekcji
-function showSection(sectionId){
+function showSection(id){
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(sectionId).classList.add('active');
+    document.getElementById(id).classList.add('active');
 }
 
-// WEBHOOKI
-const webhookReport = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ";
+/* WEBHOOKI */
+const webhookReport  = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ";
 const webhookInquiry = "https://discord.com/api/webhooks/1445979676378927206/PbIyZOBfllBB81eC-qabMhYDx1sO9b-9wzDyzrt6rZpEQi4f3vpiZHXrcUFBdoY4tarU";
 
-// FUNKCJA RAPORTOWA
+/* PRIORYTET + LED */
+const prioritySelect = document.getElementById("priority");
+const reportSection = document.getElementById("report");
+const ledFrame = document.querySelector(".led-frame");
+
+prioritySelect.addEventListener("change", function(){
+    reportSection.classList.remove("form-low","form-medium","form-high","form-critical");
+    ledFrame.classList.remove('low','medium','high','critical');
+
+    if(this.value==="Niski") { 
+        reportSection.classList.add("form-low"); 
+        ledFrame.classList.add('low');
+    }
+    if(this.value==="Średni") { 
+        reportSection.classList.add("form-medium"); 
+        ledFrame.classList.add('medium');
+    }
+    if(this.value==="Wysoki") { 
+        reportSection.classList.add("form-high"); 
+        ledFrame.classList.add('high');
+    }
+    if(this.value==="Krytyczny") { 
+        reportSection.classList.add("form-critical"); 
+        ledFrame.classList.add('critical');
+    }
+});
+
+/* RAPORT */
 function sendReport(){
     const officer = document.getElementById("officer").value;
-    const phone = document.getElementById("phone").value;
+    const phone   = document.getElementById("phone").value;
     const priority = document.getElementById("priority").value;
     const message = document.getElementById("message").value;
-
-    if(!officer || !message){
-        document.getElementById("status").innerText = "❗ Uzupełnij wszystkie pola!";
-        return;
-    }
+    if(!officer || !message){ document.getElementById("status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
 
     let embed;
-    if(priority==="Niski"){ embed = { title:"🟢 Raport – Priorytet Niski", color:5763719, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📄 Treść Raportu", value:message} ], footer:{text:"DTU - Priorytet Niski"}, timestamp:new Date()}; }
-    if(priority==="Średni"){ embed = { title:"🟡 Raport – Priorytet Średni", color:16776960, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📄 Treść Raportu", value:message} ], footer:{text:"DTU - Priorytet Średni"}, timestamp:new Date()}; }
-    if(priority==="Wysoki"){ embed = { title:"🟠 Raport – Priorytet Wysoki", color:16753920, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📄 Treść Raportu", value:message} ], footer:{text:"DTU - Priorytet Wysoki"}, timestamp:new Date()}; }
-    if(priority==="Krytyczny"){ embed = { title:"🔴 ❗ RAPORT TAKTYCZNY – PRIORYTET KRYTYCZNY ❗", color:15548997, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📢 Treść Raportu", value:message} ], footer:{text:"DTU - Status KRYTYCZNY"}, timestamp:new Date()}; }
+    if(priority==="Niski"){ embed={title:"🟦 Raport – Priorytet Niski",color:3447003,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📄 Treść Raportu",value:message}],footer:{text:"DTU – Priorytet Niski"},timestamp:new Date()}; }
+    if(priority==="Średni"){ embed={title:"🟡 Raport – Priorytet Średni",color:16763904,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📄 Treść Raportu",value:message}],footer:{text:"DTU – Priorytet Średni"},timestamp:new Date()}; }
+    if(priority==="Wysoki"){ embed={title:"🟠 Raport – Priorytet Wysoki",color:16753920,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📄 Treść Raportu",value:message}],footer:{text:"DTU – Priorytet Wysoki"},timestamp:new Date()}; }
+    if(priority==="Krytyczny"){ embed={title:"🔴🚨 TAKTYCZNY RAPORT – PRIORYTET KRYTYCZNY",color:15548997,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📢 Treść Raportu",value:"**"+message+"**"}],footer:{text:"DTU – KRYTYCZNY STATUS"},timestamp:new Date()}; }
 
-    const payload = { username:"Informator PD>>DTU", embeds:[embed] };
-
-    fetch(webhookReport, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)})
+    fetch(webhookReport,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
     .then(res=>{
         if(res.ok){
             document.getElementById("status").innerText="✅ Raport wysłany!";
@@ -240,48 +284,31 @@ function sendReport(){
             document.getElementById("phone").value="";
             document.getElementById("priority").value="Niski";
             document.getElementById("message").value="";
-        } else { document.getElementById("status").innerText="❌ Błąd wysyłania."; }
-    })
-    .catch(()=>{ document.getElementById("status").innerText="❗ Błąd połączenia."; });
+            reportSection.classList.remove("form-low","form-medium","form-high","form-critical");
+            ledFrame.classList.remove('low','medium','high','critical');
+        } else document.getElementById("status").innerText="❌ Błąd wysyłania.";
+    }).catch(()=> document.getElementById("status").innerText="❗ Błąd połączenia.");
 }
 
-// FUNKCJA ZAPYTANIOWA
+/* ZAPYTANIA */
 function sendInquiry(){
     const officer = document.getElementById("inq_officer").value;
-    const phone = document.getElementById("inq_phone").value;
-    const message = document.getElementById("inq_message").value;
+    const phone   = document.getElementById("inq_phone").value;
+    const msg     = document.getElementById("inq_message").value;
+    if(!officer || !msg){ document.getElementById("inq_status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
+    const embed={title:"❓ Zapytanie DTU",color:3447003,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📝 Treść Zapytania",value:msg}],footer:{text:"DTU – Zapytania Funkcjonariuszy"},timestamp:new Date()};
+    fetch(webhookInquiry,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
+    .then(res=>{ if(res.ok){ document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; document.getElementById("inq_officer").value=""; document.getElementById("inq_phone").value=""; document.getElementById("inq_message").value=""; } else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }).catch(()=> document.getElementById("inq_status").innerText="❗ Błąd połączenia."); }
 
-    if(!officer || !message){
-        document.getElementById("inq_status").innerText = "❗ Uzupełnij wszystkie pola!";
-        return;
-    }
-
-    const embed = {
-        title:"❓ Zapytanie DTU",
-        color: 3447003,
-        fields:[
-            {name:"👮 Funkcjonariusz", value:officer, inline:true},
-            {name:"📞 Telefon", value:phone, inline:true},
-            {name:"📝 Treść Zapytania", value:message}
-        ],
-        footer:{text:"DTU - Zapytania Funkcjonariuszy"},
-        timestamp:new Date()
-    };
-
-    const payload = { username:"Informator PD>>DTU", embeds:[embed] };
-
-    fetch(webhookInquiry, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)})
-    .then(res=>{
-        if(res.ok){
-            document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!";
-            document.getElementById("inq_officer").value="";
-            document.getElementById("inq_phone").value="";
-            document.getElementById("inq_message").value="";
-        } else { document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }
-    })
-    .catch(()=>{ document.getElementById("inq_status").innerText="❗ Błąd połączenia."; });
+/* FAQ */
+var acc=document.getElementsByClassName("accordion");
+for(var i=0;i<acc.length;i++){
+    acc[i].addEventListener("click",function(){
+        this.classList.toggle("active");
+        var panel=this.nextElementSibling;
+        if(panel.style.maxHeight){ panel.style.maxHeight=null; } else{ panel.style.maxHeight=panel.scrollHeight+"px"; }
+    });
 }
-
 </script>
 </body>
 </html>
