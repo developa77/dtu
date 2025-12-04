@@ -63,10 +63,39 @@
         transition: 0.2s;
     }
 
-    input:focus, select:focus, textarea:focus {
+    input:focus, textarea:focus {
         border-color: #2d8cff;
         outline: none;
         background: rgba(255, 255, 255, 0.12);
+    }
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        font-size: 15px;
+        padding: 12px;
+        margin-top: 6px;
+        border-radius: 8px;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        cursor: pointer;
+    }
+
+    select:focus {
+        border-color: #2d8cff;
+        outline: none;
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    select option {
+        background: #141a24;
+        color: white;
     }
 
     button {
@@ -125,7 +154,7 @@
 
 <script>
 function sendReport() {
-    const webhook = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ"; // ← Twój webhook
+    const webhook = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ"; // <-- Twój webhook
 
     const officer = document.getElementById("officer").value;
     const priority = document.getElementById("priority").value;
@@ -136,7 +165,6 @@ function sendReport() {
         return;
     }
 
-    // RÓŻNE EMBEDY W ZALEŻNOŚCI OD PRIORYTETU
     let embed;
 
     if (priority === "Niski") {
@@ -195,7 +223,6 @@ function sendReport() {
         };
     }
 
-    // Tworzenie payloadu
     const payload = {
         username: "Informator PD>>DTU",
         embeds: [embed]
@@ -209,6 +236,12 @@ function sendReport() {
     .then(res => {
         if (res.ok) {
             document.getElementById("status").innerText = "✅ Raport wysłany!";
+
+            // CZYSZCZENIE PÓL PO WYSŁANIU
+            document.getElementById("officer").value = "";
+            document.getElementById("priority").value = "Niski"; // reset do domyślnego
+            document.getElementById("message").value = "";
+
         } else {
             document.getElementById("status").innerText = "❌ Błąd wysyłania.";
         }
