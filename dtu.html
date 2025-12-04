@@ -2,9 +2,8 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>DTU - Formularz Raportów</title>
+<title>DTU - Panel Informacyjny</title>
 
-<!-- Stylizacja -->
 <style>
     body {
         margin: 0;
@@ -37,11 +36,17 @@
         opacity: 0.9;
     }
 
-    h2 {
+    h2, h3 {
         text-align: center;
         margin-bottom: 20px;
         font-weight: 600;
         letter-spacing: 1px;
+    }
+
+    p {
+        text-align: center;
+        opacity: 0.9;
+        line-height: 1.5;
     }
 
     label {
@@ -121,136 +126,162 @@
         opacity: 0.9;
         font-weight: 500;
     }
-</style>
 
+    /* Sekcje */
+    .section {
+        display: none;
+    }
+
+    .active {
+        display: block;
+    }
+
+</style>
 </head>
 <body>
 
 <div class="container">
-    
+
     <!-- LOGO -->
     <img src="dtu.png" alt="DTU Logo" class="logo">
 
-    <h2>Panel Raportowy DTU</h2>
+    <!-- STRONA GŁÓWNA -->
+    <div id="home" class="section active">
+        <h2>Witamy w panelu DTU</h2>
+        <p>Ta strona służy do przekazywania informacji pomiędzy Funkcjonariuszami Policji a jednostką DTU.<br>
+        Wybierz odpowiedni formularz poniżej, aby wysłać raport lub zadać pytanie.</p>
 
-    <label>Funkcjonariusz</label>
-    <input type="text" id="officer" placeholder="np. J. Miller">
+        <button onclick="showSection('report')">Formularz Raportowy 📄</button>
+        <button onclick="showSection('inquiry')">Formularz Zapytaniowy ❓</button>
+    </div>
 
-    <label>Priorytet</label>
-    <select id="priority">
-        <option value="Niski">Niski</option>
-        <option value="Średni">Średni</option>
-        <option value="Wysoki">Wysoki</option>
-        <option value="Krytyczny">Krytyczny</option>
-    </select>
+    <!-- FORMULARZ RAPORTOWY -->
+    <div id="report" class="section">
+        <h2>Formularz Raportowy DTU</h2>
+        <label>Funkcjonariusz</label>
+        <input type="text" id="officer" placeholder="np. J. Miller">
 
-    <label>Treść raportu</label>
-    <textarea id="message" rows="6" placeholder="Opisz sytuację..."></textarea>
+        <label>Numer telefonu kontaktowego</label>
+        <input type="text" id="phone" placeholder="np. 123-456-789">
 
-    <button onclick="sendReport()">Wyślij raport</button>
+        <label>Priorytet</label>
+        <select id="priority">
+            <option value="Niski">Niski</option>
+            <option value="Średni">Średni</option>
+            <option value="Wysoki">Wysoki</option>
+            <option value="Krytyczny">Krytyczny</option>
+        </select>
 
-    <p id="status"></p>
+        <label>Treść raportu</label>
+        <textarea id="message" rows="6" placeholder="Opisz sytuację..."></textarea>
+
+        <button onclick="sendReport()">Wyślij raport</button>
+        <button onclick="showSection('home')">Powrót do strony głównej</button>
+
+        <p id="status"></p>
+    </div>
+
+    <!-- FORMULARZ ZAPYTANIOWY -->
+    <div id="inquiry" class="section">
+        <h2>Formularz Zapytaniowy DTU</h2>
+        <label>Funkcjonariusz</label>
+        <input type="text" id="inq_officer" placeholder="np. J. Miller">
+
+        <label>Numer telefonu kontaktowego</label>
+        <input type="text" id="inq_phone" placeholder="np. 123-456-789">
+
+        <label>Treść zapytania</label>
+        <textarea id="inq_message" rows="6" placeholder="Opisz zapytanie..."></textarea>
+
+        <button onclick="sendInquiry()">Wyślij zapytanie</button>
+        <button onclick="showSection('home')">Powrót do strony głównej</button>
+
+        <p id="inq_status"></p>
+    </div>
+
 </div>
 
 <script>
-function sendReport() {
-    const webhook = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ"; // <-- Twój webhook
+// Funkcja przełączania sekcji
+function showSection(sectionId){
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+}
 
+// WEBHOOKI
+const webhookReport = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ";
+const webhookInquiry = "https://discord.com/api/webhooks/1445979676378927206/PbIyZOBfllBB81eC-qabMhYDx1sO9b-9wzDyzrt6rZpEQi4f3vpiZHXrcUFBdoY4tarU";
+
+// FUNKCJA RAPORTOWA
+function sendReport(){
     const officer = document.getElementById("officer").value;
+    const phone = document.getElementById("phone").value;
     const priority = document.getElementById("priority").value;
     const message = document.getElementById("message").value;
 
-    if (!officer || !message) {
+    if(!officer || !message){
         document.getElementById("status").innerText = "❗ Uzupełnij wszystkie pola!";
         return;
     }
 
     let embed;
+    if(priority==="Niski"){ embed = { title:"🟢 Raport – Priorytet Niski", color:5763719, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📄 Treść Raportu", value:message} ], footer:{text:"DTU - Priorytet Niski"}, timestamp:new Date()}; }
+    if(priority==="Średni"){ embed = { title:"🟡 Raport – Priorytet Średni", color:16776960, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📄 Treść Raportu", value:message} ], footer:{text:"DTU - Priorytet Średni"}, timestamp:new Date()}; }
+    if(priority==="Wysoki"){ embed = { title:"🟠 Raport – Priorytet Wysoki", color:16753920, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📄 Treść Raportu", value:message} ], footer:{text:"DTU - Priorytet Wysoki"}, timestamp:new Date()}; }
+    if(priority==="Krytyczny"){ embed = { title:"🔴 ❗ RAPORT TAKTYCZNY – PRIORYTET KRYTYCZNY ❗", color:15548997, fields:[ {name:"👮 Funkcjonariusz", value:officer, inline:true}, {name:"📞 Telefon", value:phone, inline:true}, {name:"📢 Treść Raportu", value:message} ], footer:{text:"DTU - Status KRYTYCZNY"}, timestamp:new Date()}; }
 
-    if (priority === "Niski") {
-        embed = {
-            title: "🟢 Raport – Priorytet Niski",
-            color: 5763719,
-            fields: [
-                { name: "👮 Funkcjonariusz", value: officer, inline: true },
-                { name: "🛈 Priorytet", value: priority, inline: true },
-                { name: "📄 Treść Raportu", value: message }
-            ],
-            footer: { text: "DTU - Priorytet Niski" },
-            timestamp: new Date()
-        };
+    const payload = { username:"Informator PD>>DTU", embeds:[embed] };
+
+    fetch(webhookReport, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)})
+    .then(res=>{
+        if(res.ok){
+            document.getElementById("status").innerText="✅ Raport wysłany!";
+            document.getElementById("officer").value="";
+            document.getElementById("phone").value="";
+            document.getElementById("priority").value="Niski";
+            document.getElementById("message").value="";
+        } else { document.getElementById("status").innerText="❌ Błąd wysyłania."; }
+    })
+    .catch(()=>{ document.getElementById("status").innerText="❗ Błąd połączenia."; });
+}
+
+// FUNKCJA ZAPYTANIOWA
+function sendInquiry(){
+    const officer = document.getElementById("inq_officer").value;
+    const phone = document.getElementById("inq_phone").value;
+    const message = document.getElementById("inq_message").value;
+
+    if(!officer || !message){
+        document.getElementById("inq_status").innerText = "❗ Uzupełnij wszystkie pola!";
+        return;
     }
 
-    if (priority === "Średni") {
-        embed = {
-            title: "🟡 Raport – Priorytet Średni",
-            color: 16776960,
-            fields: [
-                { name: "👮 Funkcjonariusz", value: officer, inline: true },
-                { name: "⚠️ Priorytet", value: priority, inline: true },
-                { name: "📄 Treść Raportu", value: message }
-            ],
-            footer: { text: "DTU - Priorytet Średni" },
-            timestamp: new Date()
-        };
-    }
-
-    if (priority === "Wysoki") {
-        embed = {
-            title: "🟠 Raport – Priorytet Wysoki",
-            color: 16753920,
-            fields: [
-                { name: "👮 Funkcjonariusz", value: officer, inline: true },
-                { name: "🚨 Priorytet", value: priority, inline: true },
-                { name: "📄 Treść Raportu", value: message }
-            ],
-            footer: { text: "DTU - Priorytet Wysoki" },
-            timestamp: new Date()
-        };
-    }
-
-    if (priority === "Krytyczny") {
-        embed = {
-            title: "🔴 ❗ RAPORT TAKTYCZNY – PRIORYTET KRYTYCZNY ❗",
-            color: 15548997,
-            fields: [
-                { name: "👮 Funkcjonariusz", value: officer, inline: true },
-                { name: "💀 Priorytet", value: "**KRYTYCZNY**", inline: true },
-                { name: "📢 Treść Raportu", value: message }
-            ],
-            footer: { text: "DTU - Status KRYTYCZNY" },
-            timestamp: new Date()
-        };
-    }
-
-    const payload = {
-        username: "Informator PD>>DTU",
-        embeds: [embed]
+    const embed = {
+        title:"❓ Zapytanie DTU",
+        color: 3447003,
+        fields:[
+            {name:"👮 Funkcjonariusz", value:officer, inline:true},
+            {name:"📞 Telefon", value:phone, inline:true},
+            {name:"📝 Treść Zapytania", value:message}
+        ],
+        footer:{text:"DTU - Zapytania Funkcjonariuszy"},
+        timestamp:new Date()
     };
 
-    fetch(webhook, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-    .then(res => {
-        if (res.ok) {
-            document.getElementById("status").innerText = "✅ Raport wysłany!";
+    const payload = { username:"Informator PD>>DTU", embeds:[embed] };
 
-            // CZYSZCZENIE PÓL PO WYSŁANIU
-            document.getElementById("officer").value = "";
-            document.getElementById("priority").value = "Niski"; // reset do domyślnego
-            document.getElementById("message").value = "";
-
-        } else {
-            document.getElementById("status").innerText = "❌ Błąd wysyłania.";
-        }
+    fetch(webhookInquiry, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)})
+    .then(res=>{
+        if(res.ok){
+            document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!";
+            document.getElementById("inq_officer").value="";
+            document.getElementById("inq_phone").value="";
+            document.getElementById("inq_message").value="";
+        } else { document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }
     })
-    .catch(() => {
-        document.getElementById("status").innerText = "❗ Błąd połączenia.";
-    });
+    .catch(()=>{ document.getElementById("inq_status").innerText="❗ Błąd połączenia."; });
 }
-</script>
 
+</script>
 </body>
 </html>
