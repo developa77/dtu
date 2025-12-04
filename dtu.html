@@ -162,7 +162,7 @@
         <input type="text" id="officer" placeholder="np. J. Miller">
 
         <label>Numer telefonu kontaktowego</label>
-        <input type="text" id="phone" placeholder="np. 123-456-789">
+        <input type="text" id="phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
 
         <label>Priorytet</label>
         <select id="priority">
@@ -188,7 +188,7 @@
         <input type="text" id="inq_officer" placeholder="np. J. Miller">
 
         <label>Numer telefonu kontaktowego</label>
-        <input type="text" id="inq_phone" placeholder="np. 123-456-789">
+        <input type="text" id="inq_phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
 
         <label>Treść zapytania</label>
         <textarea id="inq_message" rows="6" placeholder="Opisz zapytanie..."></textarea>
