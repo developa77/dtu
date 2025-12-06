@@ -22,6 +22,7 @@ body {
     position: relative;
 }
 
+/* ===== LED FRAME ===== */
 .led-frame {
     position: absolute;
     top: -10px;
@@ -33,14 +34,13 @@ body {
     box-shadow: 0 0 15px rgba(0,102,255,0.4),
                 0 0 30px rgba(0,102,255,0.2),
                 0 0 45px rgba(0,102,255,0.1);
-    transition: 0.3s;
+    transition: 0.3s, box-shadow 0.3s;
 }
 
-/* Priorytety LED */
-.led-frame.low { box-shadow: 0 0 15px rgba(0,102,255,0.8),0 0 150px rgba(0,102,255,0.5),0 0 45px rgba(0,102,255,0.3);}
-.led-frame.medium { box-shadow: 0 0 15px rgba(255,204,0,0.8),0 0 150px rgba(255,204,0,0.5),0 0 45px rgba(255,204,0,0.3);}
-.led-frame.high { box-shadow: 0 0 15px rgba(255,102,0,0.8),0 0 150px rgba(255,102,0,0.5),0 0 45px rgba(255,102,0,0.3);}
-.led-frame.critical { box-shadow: 0 0 15px rgba(255,0,0,0.8),0 0 150px rgba(255,0,0,0.5),0 0 45px rgba(255,0,0,0.3);}
+.led-frame.low { box-shadow: 0 0 20px rgba(0,102,255,0.8),0 0 80px rgba(0,102,255,0.5),0 0 40px rgba(0,102,255,0.3); }
+.led-frame.medium { box-shadow: 0 0 20px rgba(255,204,0,0.8),0 0 80px rgba(255,204,0,0.5),0 0 40px rgba(255,204,0,0.3); }
+.led-frame.high { box-shadow: 0 0 20px rgba(255,102,0,0.8),0 0 80px rgba(255,102,0,0.5),0 0 40px rgba(255,102,0,0.3); }
+.led-frame.critical { box-shadow: 0 0 20px rgba(255,0,0,0.8),0 0 80px rgba(255,0,0,0.5),0 0 40px rgba(255,0,0,0.3); }
 
 /* ===== CONTAINER ===== */
 .container {
@@ -144,12 +144,20 @@ button:hover {
     margin-bottom: 6px;
 }
 
-/* ===== KOLORY PRIORYTETÓW FORMULARZA ===== */
-#report.form-low { border-color: rgba(0,102,255,0.35); }
-#report.form-medium { border-color: rgba(255,204,0,0.6); }
-#report.form-high { border-color: rgba(255,102,0,0.6); }
-#report.form-critical { border-color: rgba(255,0,0,0.5); }
-#report.form-critical button { background: linear-gradient(90deg,#aa0000 0%,#ff2222 100%); }
+/* ===== PRIORYTETY I TAGI ===== */
+.priority-btn, .tag-btn {
+    display:inline-block;
+    padding:6px 10px;
+    margin:3px 2px;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:14px;
+    background: rgba(0,20,40,0.5);
+    border:1px solid rgba(0,102,255,0.25);
+    color:#fff;
+    user-select:none;
+}
+.priority-btn.active, .tag-btn.active { background: #1e90ff; border-color:#61a0ff; }
 
 /* ===== TABLET ===== */
 #tablet {
@@ -201,12 +209,20 @@ button:hover {
             <label>Numer telefonu</label>
             <input type="text" id="phone" placeholder="np. 123456789" oninput="this.value = this.value.replace(/\D/g,'')">
             <label>Priorytet</label>
-            <select id="priority">
-                <option value="Niski">Niski</option>
-                <option value="Średni">Średni</option>
-                <option value="Wysoki">Wysoki</option>
-                <option value="Krytyczny">Krytyczny</option>
-            </select>
+            <div id="priority-container">
+                <span class="priority-btn active" data-priority="Niski">Niski</span>
+                <span class="priority-btn" data-priority="Średni">Średni</span>
+                <span class="priority-btn" data-priority="Wysoki">Wysoki</span>
+                <span class="priority-btn" data-priority="Krytyczny">Krytyczny</span>
+            </div>
+            <label>Tagi</label>
+            <div id="tags-container">
+                <span class="tag-btn" data-tag="obserwacja">Obserwacja</span>
+                <span class="tag-btn" data-tag="akcja">Akcja</span>
+                <span class="tag-btn" data-tag="techniczne">Techniczne</span>
+                <span class="tag-btn" data-tag="operacyjne">Operacyjne</span>
+                <span class="tag-btn" data-tag="zakupy kontrolowane">Zakupy kontrolowane</span>
+            </div>
             <label>Treść raportu</label>
             <textarea id="message" rows="6" placeholder="Opisz sytuację..."></textarea>
             <button onclick="sendReport()">Wyślij Raport</button>
@@ -232,7 +248,7 @@ button:hover {
         <div id="faq" class="section">
             <h2>FAQ – Najczęściej Zadawane Pytania</h2>
             <button class="accordion">Jak wysłać raport do DTU?</button>
-            <div class="panel"><p>Wypełnij formularz raportowy, wybierz priorytet i opisz sytuację, a następnie kliknij "Wyślij Raport".</p></div>
+            <div class="panel"><p>Wypełnij formularz raportowy, wybierz priorytet i tagi, opisz sytuację, a następnie kliknij "Wyślij Raport".</p></div>
             <button class="accordion">Jak wysłać zapytanie do DTU?</button>
             <div class="panel"><p>Wypełnij formularz zapytaniowy, podaj swoje dane i treść pytania, a następnie kliknij "Wyślij Zapytanie".</p></div>
             <button class="accordion">Czy muszę podawać numer telefonu?</button>
@@ -252,14 +268,13 @@ button:hover {
 <div id="tablet">
     <h3>📱 Podgląd</h3>
     <div class="tablet-content">
-        <!-- Raport -->
         <div id="tablet-report" class="tablet-section">
             <div class="tablet-field"><span>👮 Funkcjonariusz:</span> <span id="tablet-officer">-</span></div>
             <div class="tablet-field"><span>📞 Telefon:</span> <span id="tablet-phone">-</span></div>
             <div class="tablet-field"><span>⚡ Priorytet:</span> <span id="tablet-priority">-</span></div>
+            <div class="tablet-field"><span>🏷️ Tagi:</span> <span id="tablet-tags">-</span></div>
             <div class="tablet-field"><span>📝 Treść:</span> <span id="tablet-message">-</span></div>
         </div>
-        <!-- Zapytanie -->
         <div id="tablet-inquiry" class="tablet-section">
             <div class="tablet-field"><span>👮 Funkcjonariusz:</span> <span id="tablet-inq-officer">-</span></div>
             <div class="tablet-field"><span>📞 Telefon:</span> <span id="tablet-inq-phone">-</span></div>
@@ -269,10 +284,13 @@ button:hover {
 </div>
 
 <script>
+const ledFrame = document.querySelector('.led-frame');
+let selectedPriority = "Niski"; // domyślny priorytet
+
+/* ===== SEKCJE ===== */
 function showSection(id){
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    // Tablet widoczny tylko dla formularzy
     if(id==='report'){
         document.getElementById('tablet').style.display='block';
         document.getElementById('tablet-report').classList.add('active');
@@ -288,91 +306,113 @@ function showSection(id){
     }
 }
 
-/* WEBHOOKI */
+/* ===== WEBHOOK ===== */
 const webhookReport  = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ";
 const webhookInquiry = "https://discord.com/api/webhooks/1445979676378927206/PbIyZOBfllBB81eC-qabMhYDx1sO9b-9wzDyzrt6rZpEQi4f3vpiZHXrcUFBdoY4tarU";
 
-/* PRIORYTET + LED */
-const prioritySelect = document.getElementById("priority");
-const reportSection = document.getElementById("report");
-const ledFrame = document.querySelector(".led-frame");
-
-prioritySelect.addEventListener("change", function(){
-    reportSection.classList.remove("form-low","form-medium","form-high","form-critical");
-    ledFrame.classList.remove('low','medium','high','critical');
-
-    if(this.value==="Niski") { 
-        reportSection.classList.add("form-low"); 
-        ledFrame.classList.add('low');
-    }
-    if(this.value==="Średni") { 
-        reportSection.classList.add("form-medium"); 
-        ledFrame.classList.add('medium');
-    }
-    if(this.value==="Wysoki") { 
-        reportSection.classList.add("form-high"); 
-        ledFrame.classList.add('high');
-    }
-    if(this.value==="Krytyczny") { 
-        reportSection.classList.add("form-critical"); 
-        ledFrame.classList.add('critical');
-    }
-    updateTabletReport();
+/* ===== PRIORYTETY ===== */
+document.querySelectorAll(".priority-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".priority-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedPriority = btn.dataset.priority;
+        switch(selectedPriority){
+            case "Niski": ledFrame.className="led-frame low"; break;
+            case "Średni": ledFrame.className="led-frame medium"; break;
+            case "Wysoki": ledFrame.className="led-frame high"; break;
+            case "Krytyczny": ledFrame.className="led-frame critical"; break;
+        }
+        updateTabletReport();
+    });
 });
 
-/* RAPORT */
+/* ===== TAGI ===== */
+document.querySelectorAll(".tag-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{ btn.classList.toggle("active"); updateTabletReport(); });
+});
+
+/* ===== RAPORT ===== */
 function sendReport(){
     const officer = document.getElementById("officer").value;
     const phone   = document.getElementById("phone").value;
-    const priority = document.getElementById("priority").value;
     const message = document.getElementById("message").value;
+    const tags = Array.from(document.querySelectorAll(".tag-btn.active")).map(b=>b.dataset.tag);
     if(!officer || !message){ document.getElementById("status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
 
-    let embed;
-    if(priority==="Niski"){ embed={title:"🟦 Raport – Priorytet Niski",color:3447003,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📄 Treść Raportu",value:message}],footer:{text:"DTU – Priorytet Niski"},timestamp:new Date()}; }
-    if(priority==="Średni"){ embed={title:"🟡 Raport – Priorytet Średni",color:16763904,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📄 Treść Raportu",value:message}],footer:{text:"DTU – Priorytet Średni"},timestamp:new Date()}; }
-    if(priority==="Wysoki"){ embed={title:"🟠 Raport – Priorytet Wysoki",color:16753920,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📄 Treść Raportu",value:message}],footer:{text:"DTU – Priorytet Wysoki"},timestamp:new Date()}; }
-    if(priority==="Krytyczny"){ embed={title:"🔴🚨 TAKTYCZNY RAPORT – PRIORYTET KRYTYCZNY",color:15548997,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📢 Treść Raportu",value:"**"+message+"**"}],footer:{text:"DTU – KRYTYCZNY STATUS"},timestamp:new Date()}; }
+    const colors = { "Niski":3447003, "Średni":16763904, "Wysoki":16753920, "Krytyczny":15548997 };
+    const titles = { "Niski":"🟦 Raport – Priorytet Niski","Średni":"🟡 Raport – Priorytet Średni","Wysoki":"🟠 Raport – Priorytet Wysoki","Krytyczny":"🔴🚨 Raport – Priorytet Krytyczny" };
+
+    const embed = {
+        title: titles[selectedPriority],
+        color: colors[selectedPriority],
+        fields:[
+            {name:"👮 Funkcjonariusz", value:officer, inline:true},
+            {name:"📞 Telefon", value:phone || "-", inline:true},
+            {name:"⚡ Priorytet", value:selectedPriority, inline:true},
+            {name:"🏷️ Tagi", value:tags.join(", ") || "-", inline:true},
+            {name:"📝 Treść Raportu", value:message}
+        ],
+        footer:{text:"DTU – Raport"},
+        timestamp:new Date()
+    };
 
     fetch(webhookReport,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
-    .then(res=>{
-        if(res.ok){
-            document.getElementById("status").innerText="✅ Raport wysłany!";
-            document.getElementById("officer").value="";
-            document.getElementById("phone").value="";
-            document.getElementById("priority").value="Niski";
-            document.getElementById("message").value="";
-            reportSection.classList.remove("form-low","form-medium","form-high","form-critical");
-            ledFrame.classList.remove('low','medium','high','critical');
-            updateTabletReport();
-        } else document.getElementById("status").innerText="❌ Błąd wysyłania.";
-    }).catch(()=> document.getElementById("status").innerText="❗ Błąd połączenia.");
+    .then(res=>{ if(res.ok){ document.getElementById("status").innerText="✅ Raport wysłany!"; clearReportForm(); } 
+        else document.getElementById("status").innerText="❌ Błąd wysyłania."; }).catch(()=>document.getElementById("status").innerText="❗ Błąd połączenia.");
 }
 
-/* ZAPYTANIA */
-function sendInquiry(){
-    const officer = document.getElementById("inq_officer").value;
-    const phone   = document.getElementById("inq_phone").value;
-    const msg     = document.getElementById("inq_message").value;
-    if(!officer || !msg){ document.getElementById("inq_status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
-    const embed={title:"❓ Zapytanie DTU",color:3447003,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📝 Treść Zapytania",value:msg}],footer:{text:"DTU – Zapytania Funkcjonariuszy"},timestamp:new Date()};
-    fetch(webhookInquiry,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
-    .then(res=>{ if(res.ok){ document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; document.getElementById("inq_officer").value=""; document.getElementById("inq_phone").value=""; document.getElementById("inq_message").value=""; updateTabletInquiry(); } else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }).catch(()=> document.getElementById("inq_status").innerText="❗ Błąd połączenia."); }
+function clearReportForm(){
+    document.getElementById("officer").value="";
+    document.getElementById("phone").value="";
+    document.getElementById("message").value="";
+    selectedPriority="Niski";
+    document.querySelectorAll(".priority-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelector(`.priority-btn[data-priority="Niski"]`).classList.add("active");
+    ledFrame.className="led-frame low";
+    document.querySelectorAll(".tag-btn").forEach(b=>b.classList.remove("active"));
+    updateTabletReport();
+}
 
-/* PODGLĄD W TABLECIE */
+/* ===== ZAPYTANIE ===== */
+function sendInquiry(){
+    const officer=document.getElementById("inq_officer").value;
+    const phone=document.getElementById("inq_phone").value;
+    const msg=document.getElementById("inq_message").value;
+    if(!officer||!msg){ document.getElementById("inq_status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
+    const embed={title:"❓ Zapytanie DTU", color:3447003,
+        fields:[
+            {name:"👮 Funkcjonariusz", value:officer, inline:true},
+            {name:"📞 Telefon", value:phone || "-", inline:true},
+            {name:"📝 Treść Zapytania", value:msg}
+        ],
+        footer:{text:"DTU – Zapytania"}, timestamp:new Date()};
+    fetch(webhookInquiry,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
+    .then(res=>{if(res.ok){document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; clearInquiryForm();} 
+        else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."}).catch(()=>document.getElementById("inq_status").innerText="❗ Błąd połączenia.");
+}
+function clearInquiryForm(){
+    document.getElementById("inq_officer").value="";
+    document.getElementById("inq_phone").value="";
+    document.getElementById("inq_message").value="";
+    updateTabletInquiry();
+}
+
+/* ===== PODGLĄD TABLET ===== */
 function updateTabletReport(){
-    document.getElementById("tablet-officer").innerText=document.getElementById("officer").value || "-";
-    document.getElementById("tablet-phone").innerText=document.getElementById("phone").value || "-";
-    document.getElementById("tablet-priority").innerText=document.getElementById("priority").value || "-";
-    document.getElementById("tablet-message").innerText=document.getElementById("message").value || "-";
+    document.getElementById("tablet-officer").innerText=document.getElementById("officer").value||"-";
+    document.getElementById("tablet-phone").innerText=document.getElementById("phone").value||"-";
+    document.getElementById("tablet-priority").innerText=selectedPriority;
+    const tags = Array.from(document.querySelectorAll(".tag-btn.active")).map(b=>b.dataset.tag);
+    document.getElementById("tablet-tags").innerText=tags.join(", ")||"-";
+    document.getElementById("tablet-message").innerText=document.getElementById("message").value||"-";
 }
 function updateTabletInquiry(){
-    document.getElementById("tablet-inq-officer").innerText=document.getElementById("inq_officer").value || "-";
-    document.getElementById("tablet-inq-phone").innerText=document.getElementById("inq_phone").value || "-";
-    document.getElementById("tablet-inq-message").innerText=document.getElementById("inq_message").value || "-";
+    document.getElementById("tablet-inq-officer").innerText=document.getElementById("inq_officer").value||"-";
+    document.getElementById("tablet-inq-phone").innerText=document.getElementById("inq_phone").value||"-";
+    document.getElementById("tablet-inq-message").innerText=document.getElementById("inq_message").value||"-";
 }
 
-/* FAQ */
+/* ===== FAQ ===== */
 var acc=document.getElementsByClassName("accordion");
 for(var i=0;i<acc.length;i++){
     acc[i].addEventListener("click",function(){
@@ -382,36 +422,28 @@ for(var i=0;i<acc.length;i++){
     });
 }
 
-/* TABLET DRAG */
+/* ===== TABLET DRAG ===== */
 dragElement(document.getElementById("tablet"));
 function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  elmnt.onmousedown = dragMouseDown;
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
+  var pos1=0,pos2=0,pos3=0,pos4=0;
+  elmnt.onmousedown=dragMouseDown;
+  function dragMouseDown(e){
+    e=e||window.event; e.preventDefault();
+    pos3=e.clientX; pos4=e.clientY;
+    document.onmouseup=closeDragElement;
+    document.onmousemove=elementDrag;
   }
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  function elementDrag(e){
+    e=e||window.event; e.preventDefault();
+    pos1=pos3-e.clientX; pos2=pos4-e.clientY;
+    pos3=e.clientX; pos4=e.clientY;
+    elmnt.style.top=(elmnt.offsetTop-pos2)+"px";
+    elmnt.style.left=(elmnt.offsetLeft-pos1)+"px";
   }
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
+  function closeDragElement(){ document.onmouseup=null; document.onmousemove=null; }
 }
 
-/* AKTUALIZACJA TABLETU W CZASIE RZECZYWISTYM */
+/* ===== AKTUALIZACJA TABLETU W CZASIE RZECZYWISTYM ===== */
 document.getElementById("officer").addEventListener("input", updateTabletReport);
 document.getElementById("phone").addEventListener("input", updateTabletReport);
 document.getElementById("message").addEventListener("input", updateTabletReport);
