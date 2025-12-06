@@ -151,6 +151,24 @@ button:hover {
 #report.form-critical { border-color: rgba(255,0,0,0.5); }
 #report.form-critical button { background: linear-gradient(90deg,#aa0000 0%,#ff2222 100%); }
 
+/* ===== TABLET ===== */
+#tablet {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 300px;
+    background: linear-gradient(145deg, #1b2735, #0a0f1f);
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+    padding: 15px;
+    z-index: 1000;
+    cursor: move;
+    color: #d8e6ff;
+    display: none;
+}
+#tablet h3 { text-align: center; margin-bottom: 10px; color: #61a0ff; }
+#tablet p { margin: 4px 0; padding: 4px 6px; background: rgba(0,0,0,0.2); border-radius: 6px; }
+
 </style>
 </head>
 <body>
@@ -227,13 +245,102 @@ button:hover {
     </div>
 </div>
 
+<!-- TABLET -->
+<div id="tablet">
+    <h3>📱 DTU Tablet - Podgląd</h3>
+    <p id="tablet-priority">Priorytet: Niski 🟦</p>
+    <p id="tablet-officer">Funkcjonariusz: -</p>
+    <p id="tablet-phone">Telefon: -</p>
+    <p id="tablet-message">Treść raportu/zapytania: -</p>
+</div>
+
 <script>
+/* ===== SEKCJE ===== */
 function showSection(id){
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+
+    const tablet = document.getElementById('tablet');
+    if(id==='report' || id==='inquiry'){
+        tablet.style.display='block';
+        updateTablet();
+    } else {
+        tablet.style.display='none';
+    }
 }
 
-/* WEBHOOKI */
+/* ===== TABLET PODGLĄD ===== */
+function updateTablet() {
+    const tablet = document.getElementById('tablet');
+    let section = document.querySelector('.section.active');
+    if(!section) return;
+
+    if(section.id === 'report') {
+        const officer = document.getElementById("officer").value || "-";
+        const phone = document.getElementById("phone").value || "-";
+        const message = document.getElementById("message").value || "-";
+        const priority = document.getElementById("priority").value;
+
+        let emoji = "🟦";
+        if(priority==="Średni") emoji="🟡";
+        if(priority==="Wysoki") emoji="🟠";
+        if(priority==="Krytyczny") emoji="🔴🚨";
+
+        document.getElementById("tablet-priority").innerText = "Priorytet: " + priority + " " + emoji;
+        document.getElementById("tablet-officer").innerText = "Funkcjonariusz: " + officer;
+        document.getElementById("tablet-phone").innerText = "Telefon: " + phone;
+        document.getElementById("tablet-message").innerText = "Treść raportu: " + message;
+    }
+
+    if(section.id === 'inquiry') {
+        const officer = document.getElementById("inq_officer").value || "-";
+        const phone = document.getElementById("inq_phone").value || "-";
+        const message = document.getElementById("inq_message").value || "-";
+
+        document.getElementById("tablet-priority").innerText = "Zapytanie ❓";
+        document.getElementById("tablet-officer").innerText = "Funkcjonariusz: " + officer;
+        document.getElementById("tablet-phone").innerText = "Telefon: " + phone;
+        document.getElementById("tablet-message").innerText = "Treść zapytania: " + message;
+    }
+}
+
+document.getElementById("officer").addEventListener("input", updateTablet);
+document.getElementById("phone").addEventListener("input", updateTablet);
+document.getElementById("message").addEventListener("input", updateTablet);
+document.getElementById("priority").addEventListener("change", updateTablet);
+document.getElementById("inq_officer").addEventListener("input", updateTablet);
+document.getElementById("inq_phone").addEventListener("input", updateTablet);
+document.getElementById("inq_message").addEventListener("input", updateTablet);
+
+/* ===== PRZECIĄGANIE TABLETU ===== */
+dragElement(document.getElementById("tablet"));
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  elmnt.onmousedown = function(e) {
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  };
+
+  function elementDrag(e) {
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+/* ===== WEBHOOKI ===== */
 const webhookReport  = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ";
 const webhookInquiry = "https://discord.com/api/webhooks/1445979676378927206/PbIyZOBfllBB81eC-qabMhYDx1sO9b-9wzDyzrt6rZpEQi4f3vpiZHXrcUFBdoY4tarU";
 
@@ -288,6 +395,7 @@ function sendReport(){
             document.getElementById("message").value="";
             reportSection.classList.remove("form-low","form-medium","form-high","form-critical");
             ledFrame.classList.remove('low','medium','high','critical');
+            updateTablet();
         } else document.getElementById("status").innerText="❌ Błąd wysyłania.";
     }).catch(()=> document.getElementById("status").innerText="❗ Błąd połączenia.");
 }
@@ -300,7 +408,7 @@ function sendInquiry(){
     if(!officer || !msg){ document.getElementById("inq_status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
     const embed={title:"❓ Zapytanie DTU",color:3447003,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📝 Treść Zapytania",value:msg}],footer:{text:"DTU – Zapytania Funkcjonariuszy"},timestamp:new Date()};
     fetch(webhookInquiry,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
-    .then(res=>{ if(res.ok){ document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; document.getElementById("inq_officer").value=""; document.getElementById("inq_phone").value=""; document.getElementById("inq_message").value=""; } else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }).catch(()=> document.getElementById("inq_status").innerText="❗ Błąd połączenia."); }
+    .then(res=>{ if(res.ok){ document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; document.getElementById("inq_officer").value=""; document.getElementById("inq_phone").value=""; document.getElementById("inq_message").value=""; updateTablet(); } else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }).catch(()=> document.getElementById("inq_status").innerText="❗ Błąd połączenia."); }
 
 /* FAQ */
 var acc=document.getElementsByClassName("accordion");
