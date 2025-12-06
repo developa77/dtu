@@ -154,21 +154,24 @@ button:hover {
 /* ===== TABLET ===== */
 #tablet {
     position: absolute;
-    top: 50px;
-    left: 50px;
-    width: 300px;
-    background: linear-gradient(145deg, #1b2735, #0a0f1f);
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+    top: 20px;
+    right: 20px;
+    width: 280px;
+    background: linear-gradient(145deg,#0d1b2a,#1b2a40);
+    border-radius: 14px;
     padding: 15px;
-    z-index: 1000;
-    cursor: move;
     color: #d8e6ff;
+    font-size: 14px;
     display: none;
+    cursor: move;
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);
 }
-#tablet h3 { text-align: center; margin-bottom: 10px; color: #61a0ff; }
-#tablet p { margin: 4px 0; padding: 4px 6px; background: rgba(0,0,0,0.2); border-radius: 6px; }
-
+#tablet h3 { text-align: center; margin: 5px 0; color: #61a0ff; }
+.tablet-content { margin-top: 10px; }
+.tablet-section { display: none; }
+.tablet-section.active { display: block; }
+.tablet-field { margin-bottom: 8px; }
+.tablet-field span { font-weight: bold; color: #ffd966; }
 </style>
 </head>
 <body>
@@ -247,100 +250,45 @@ button:hover {
 
 <!-- TABLET -->
 <div id="tablet">
-    <h3>📱 DTU Tablet - Podgląd</h3>
-    <p id="tablet-priority">Priorytet: Niski 🟦</p>
-    <p id="tablet-officer">Funkcjonariusz: -</p>
-    <p id="tablet-phone">Telefon: -</p>
-    <p id="tablet-message">Treść raportu/zapytania: -</p>
+    <h3>📱 Podgląd</h3>
+    <div class="tablet-content">
+        <!-- Raport -->
+        <div id="tablet-report" class="tablet-section">
+            <div class="tablet-field"><span>👮 Funkcjonariusz:</span> <span id="tablet-officer">-</span></div>
+            <div class="tablet-field"><span>📞 Telefon:</span> <span id="tablet-phone">-</span></div>
+            <div class="tablet-field"><span>⚡ Priorytet:</span> <span id="tablet-priority">-</span></div>
+            <div class="tablet-field"><span>📝 Treść:</span> <span id="tablet-message">-</span></div>
+        </div>
+        <!-- Zapytanie -->
+        <div id="tablet-inquiry" class="tablet-section">
+            <div class="tablet-field"><span>👮 Funkcjonariusz:</span> <span id="tablet-inq-officer">-</span></div>
+            <div class="tablet-field"><span>📞 Telefon:</span> <span id="tablet-inq-phone">-</span></div>
+            <div class="tablet-field"><span>📝 Treść zapytania:</span> <span id="tablet-inq-message">-</span></div>
+        </div>
+    </div>
 </div>
 
 <script>
-/* ===== SEKCJE ===== */
 function showSection(id){
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-
-    const tablet = document.getElementById('tablet');
-    if(id==='report' || id==='inquiry'){
-        tablet.style.display='block';
-        updateTablet();
-    } else {
-        tablet.style.display='none';
+    // Tablet widoczny tylko dla formularzy
+    if(id==='report'){
+        document.getElementById('tablet').style.display='block';
+        document.getElementById('tablet-report').classList.add('active');
+        document.getElementById('tablet-inquiry').classList.remove('active');
+        updateTabletReport();
+    } else if(id==='inquiry'){
+        document.getElementById('tablet').style.display='block';
+        document.getElementById('tablet-report').classList.remove('active');
+        document.getElementById('tablet-inquiry').classList.add('active');
+        updateTabletInquiry();
+    } else{
+        document.getElementById('tablet').style.display='none';
     }
 }
 
-/* ===== TABLET PODGLĄD ===== */
-function updateTablet() {
-    const tablet = document.getElementById('tablet');
-    let section = document.querySelector('.section.active');
-    if(!section) return;
-
-    if(section.id === 'report') {
-        const officer = document.getElementById("officer").value || "-";
-        const phone = document.getElementById("phone").value || "-";
-        const message = document.getElementById("message").value || "-";
-        const priority = document.getElementById("priority").value;
-
-        let emoji = "🟦";
-        if(priority==="Średni") emoji="🟡";
-        if(priority==="Wysoki") emoji="🟠";
-        if(priority==="Krytyczny") emoji="🔴🚨";
-
-        document.getElementById("tablet-priority").innerText = "Priorytet: " + priority + " " + emoji;
-        document.getElementById("tablet-officer").innerText = "Funkcjonariusz: " + officer;
-        document.getElementById("tablet-phone").innerText = "Telefon: " + phone;
-        document.getElementById("tablet-message").innerText = "Treść raportu: " + message;
-    }
-
-    if(section.id === 'inquiry') {
-        const officer = document.getElementById("inq_officer").value || "-";
-        const phone = document.getElementById("inq_phone").value || "-";
-        const message = document.getElementById("inq_message").value || "-";
-
-        document.getElementById("tablet-priority").innerText = "Zapytanie ❓";
-        document.getElementById("tablet-officer").innerText = "Funkcjonariusz: " + officer;
-        document.getElementById("tablet-phone").innerText = "Telefon: " + phone;
-        document.getElementById("tablet-message").innerText = "Treść zapytania: " + message;
-    }
-}
-
-document.getElementById("officer").addEventListener("input", updateTablet);
-document.getElementById("phone").addEventListener("input", updateTablet);
-document.getElementById("message").addEventListener("input", updateTablet);
-document.getElementById("priority").addEventListener("change", updateTablet);
-document.getElementById("inq_officer").addEventListener("input", updateTablet);
-document.getElementById("inq_phone").addEventListener("input", updateTablet);
-document.getElementById("inq_message").addEventListener("input", updateTablet);
-
-/* ===== PRZECIĄGANIE TABLETU ===== */
-dragElement(document.getElementById("tablet"));
-function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  elmnt.onmousedown = function(e) {
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-  };
-
-  function elementDrag(e) {
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
-
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
-
-/* ===== WEBHOOKI ===== */
+/* WEBHOOKI */
 const webhookReport  = "https://discord.com/api/webhooks/1445944405587398688/pRFi1CyA3mD3JgpeiNJne2b1-guXUSVzehafBgh2-pq-tThBYH77HSjxk6wRDtSp1tfJ";
 const webhookInquiry = "https://discord.com/api/webhooks/1445979676378927206/PbIyZOBfllBB81eC-qabMhYDx1sO9b-9wzDyzrt6rZpEQi4f3vpiZHXrcUFBdoY4tarU";
 
@@ -369,6 +317,7 @@ prioritySelect.addEventListener("change", function(){
         reportSection.classList.add("form-critical"); 
         ledFrame.classList.add('critical');
     }
+    updateTabletReport();
 });
 
 /* RAPORT */
@@ -395,7 +344,7 @@ function sendReport(){
             document.getElementById("message").value="";
             reportSection.classList.remove("form-low","form-medium","form-high","form-critical");
             ledFrame.classList.remove('low','medium','high','critical');
-            updateTablet();
+            updateTabletReport();
         } else document.getElementById("status").innerText="❌ Błąd wysyłania.";
     }).catch(()=> document.getElementById("status").innerText="❗ Błąd połączenia.");
 }
@@ -408,7 +357,20 @@ function sendInquiry(){
     if(!officer || !msg){ document.getElementById("inq_status").innerText="❗ Uzupełnij wszystkie pola!"; return; }
     const embed={title:"❓ Zapytanie DTU",color:3447003,fields:[{name:"👮 Funkcjonariusz",value:officer,inline:true},{name:"📞 Telefon",value:phone,inline:true},{name:"📝 Treść Zapytania",value:msg}],footer:{text:"DTU – Zapytania Funkcjonariuszy"},timestamp:new Date()};
     fetch(webhookInquiry,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"PD → DTU",embeds:[embed]})})
-    .then(res=>{ if(res.ok){ document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; document.getElementById("inq_officer").value=""; document.getElementById("inq_phone").value=""; document.getElementById("inq_message").value=""; updateTablet(); } else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }).catch(()=> document.getElementById("inq_status").innerText="❗ Błąd połączenia."); }
+    .then(res=>{ if(res.ok){ document.getElementById("inq_status").innerText="✅ Zapytanie wysłane!"; document.getElementById("inq_officer").value=""; document.getElementById("inq_phone").value=""; document.getElementById("inq_message").value=""; updateTabletInquiry(); } else document.getElementById("inq_status").innerText="❌ Błąd wysyłania."; }).catch(()=> document.getElementById("inq_status").innerText="❗ Błąd połączenia."); }
+
+/* PODGLĄD W TABLECIE */
+function updateTabletReport(){
+    document.getElementById("tablet-officer").innerText=document.getElementById("officer").value || "-";
+    document.getElementById("tablet-phone").innerText=document.getElementById("phone").value || "-";
+    document.getElementById("tablet-priority").innerText=document.getElementById("priority").value || "-";
+    document.getElementById("tablet-message").innerText=document.getElementById("message").value || "-";
+}
+function updateTabletInquiry(){
+    document.getElementById("tablet-inq-officer").innerText=document.getElementById("inq_officer").value || "-";
+    document.getElementById("tablet-inq-phone").innerText=document.getElementById("inq_phone").value || "-";
+    document.getElementById("tablet-inq-message").innerText=document.getElementById("inq_message").value || "-";
+}
 
 /* FAQ */
 var acc=document.getElementsByClassName("accordion");
@@ -419,6 +381,43 @@ for(var i=0;i<acc.length;i++){
         if(panel.style.maxHeight){ panel.style.maxHeight=null; } else{ panel.style.maxHeight=panel.scrollHeight+"px"; }
     });
 }
+
+/* TABLET DRAG */
+dragElement(document.getElementById("tablet"));
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  elmnt.onmousedown = dragMouseDown;
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+/* AKTUALIZACJA TABLETU W CZASIE RZECZYWISTYM */
+document.getElementById("officer").addEventListener("input", updateTabletReport);
+document.getElementById("phone").addEventListener("input", updateTabletReport);
+document.getElementById("message").addEventListener("input", updateTabletReport);
+document.getElementById("inq_officer").addEventListener("input", updateTabletInquiry);
+document.getElementById("inq_phone").addEventListener("input", updateTabletInquiry);
+document.getElementById("inq_message").addEventListener("input", updateTabletInquiry);
 </script>
 </body>
 </html>
